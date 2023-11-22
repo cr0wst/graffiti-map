@@ -58,7 +58,7 @@
 						if (stat) {
 							layer.bindTooltip(
 								`
-                                <h3>${feature.properties.id}</h3>
+                                <h3>${feature.properties.id.substring(1, 4)}</h3>
                                 <p>🟥 ${stat.red} 🟩 ${stat.green} 🟦 ${stat.blue}</p>
                             `,
 								{

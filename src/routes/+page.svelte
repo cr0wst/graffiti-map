@@ -72,11 +72,11 @@
 				<div class="flex items-center justify-center text-sm text-white w-1/2">
 					<div class="w-1/2 text-center flex flex-col items-center justify-center">
 						<span>{flight.departure}</span>
-						<span class="text-xs font-thin">{flight.departure_artcc}</span>
+						<span class="text-xs font-thin">{flight.departure_artcc.substring(1, 4)}</span>
 					</div>
 					<div class="w-1/2 text-center flex flex-col items-center justify-center">
 						<span>{flight.arrival}</span>
-						<span class="text-xs font-thin">{flight.arrival_artcc}</span>
+						<span class="text-xs font-thin">{flight.arrival_artcc.substring(1, 4)}</span>
 					</div>
 				</div>
 			</div>
