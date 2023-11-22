@@ -5,12 +5,11 @@ import { connect } from '$lib/db';
 export const handle: Handle = async ({ event, resolve }) => {
 	const db = await connect();
 
-	try {
-		await db.connect();
-		event.locals.db = db;
-		const response = await resolve(event);
-		return response;
-	} finally {
-		await db.release();
-	}
+	event.locals = { db };
+
+	const response = await resolve(event);
+
+	db.release();
+
+	return response;
 };
