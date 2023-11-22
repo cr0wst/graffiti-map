@@ -1,13 +1,9 @@
 import type { Handle } from '@sveltejs/kit';
-import { DB_CONNECTION_STRING } from '$env/static/private';
 
-import pg from 'pg';
-const { Client } = pg;
+import { connect } from '$lib/db';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const db = new Client({
-		connectionString: DB_CONNECTION_STRING
-	});
+	const db = await connect();
 
 	try {
 		await db.connect();
@@ -15,6 +11,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 		const response = await resolve(event);
 		return response;
 	} finally {
-		await db.end();
+		await db.release();
 	}
 };
