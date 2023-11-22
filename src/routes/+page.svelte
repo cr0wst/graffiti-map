@@ -2,9 +2,14 @@
 	import Map from '$lib/map/Map.svelte';
 	import Header from '$lib/Header.svelte';
 	import moment from 'moment';
+	import { onMount } from 'svelte';
+	import { invalidate } from '$app/navigation';
 
 	export let data;
-	const { stats, boundaries, flights } = data;
+
+	$: stats = data.stats;
+	$: boundaries = data.boundaries;
+	$: flights = data.flights;
 
 	let colorMap = {
 		blue: {
@@ -28,6 +33,14 @@
 			background: 'bg-zinc-500'
 		}
 	};
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			invalidate('app:loadData');
+		}, 5000);
+
+		return () => clearInterval(interval);
+	});
 </script>
 
 <Header />

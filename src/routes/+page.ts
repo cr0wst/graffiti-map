@@ -1,6 +1,8 @@
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ fetch }) => {
+export const load: PageLoad = async ({ fetch, depends }) => {
+	depends('app:loadData');
+
 	return {
 		stats: await fetchStats(fetch),
 		boundaries: await fetchBoundaries(fetch),
