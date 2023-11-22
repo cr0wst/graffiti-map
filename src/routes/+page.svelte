@@ -70,8 +70,14 @@
 					</div>
 				</div>
 				<div class="flex items-center justify-center text-sm text-white w-1/2">
-					<div class="w-1/2 text-center">{flight.departure}</div>
-					<div class="w-1/2 text-center">{flight.arrival}</div>
+					<div class="w-1/2 text-center flex flex-col items-center justify-center">
+						<span>{flight.departure}</span>
+						<span class="text-xs font-thin">{flight.departure_artcc}</span>
+					</div>
+					<div class="w-1/2 text-center flex flex-col items-center justify-center">
+						<span>{flight.arrival}</span>
+						<span class="text-xs font-thin">{flight.arrival_artcc}</span>
+					</div>
 				</div>
 			</div>
 		{/each}
