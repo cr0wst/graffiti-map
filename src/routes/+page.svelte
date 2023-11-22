@@ -5,31 +5,71 @@
 
 	export let data;
 	const { stats, boundaries, flights } = data;
+
+	let colorMap = {
+		blue: {
+			thickBorder: 'border-blue-500',
+			thinBorder: 'border-blue-500',
+			background: 'bg-blue-900'
+		},
+		green: {
+			thickBorder: 'border-green-500',
+			thinBorder: 'border-green-500',
+			background: 'bg-green-900'
+		},
+		red: {
+			thickBorder: 'border-red-500',
+			thinBorder: 'border-red-500',
+			background: 'bg-red-900'
+		}
+	};
 </script>
 
 <Header />
 
-<div class="flex-1 flex" id="content">
+<div class="flex-1 flex w-full" id="content">
 	<Map {stats} {boundaries} />
 </div>
-<div class="w-full flex-col flex md:flex-row m-auto">
-	{#each flights.slice(0, 4) as flight}
-		<div
-			class="h-8 border border-zinc-500 bg-zinc-700 h-fit p-1 m-1 w-full md:w-1/4 flex items-center justify-center"
-		>
-			<div class="border-r-4 border-white m-1 w-1/2 text-white font-semibold text-sm">
-				{flight.callsign}
-				<div class="text-xs font-extralight text-white">
-					{moment.utc(flight.arrived_at).fromNow()}
+<div class="w-full flex-col md:flex-row flex items-center justify-center">
+	<div class="md:w-1/6 p-2 flex items-center justify-center">
+		<h1 class="text-md graffiti-text">Tracked Landings</h1>
+	</div>
+	<div class="w-full md:flex-grow flex-col flex md:flex-row m-auto">
+		{#each flights.slice(0, 4) as flight}
+			<div
+				class="h-8 border {colorMap[flight.departure_color].thinBorder} {colorMap[
+					flight.departure_color
+				].background} h-fit p-1 m-1 w-full md:w-1/4 flex items-center justify-center"
+			>
+				<div
+					class="border-r-4 m-1 w-1/2 text-white font-semibold text-sm {colorMap[
+						flight.departure_color
+					].thickBorder}"
+				>
+					{flight.callsign}
+					<div class="text-xs font-extralight text-white">
+						{moment.utc(flight.arrived_at).fromNow()}
+					</div>
+				</div>
+				<div class="flex items-center justify-center text-sm text-white w-1/2">
+					<div class="w-1/2 text-center">{flight.departure}</div>
+					<div class="w-1/2 text-center">{flight.arrival}</div>
 				</div>
 			</div>
-			<div class="flex items-center justify-center text-sm text-white w-1/2">
-				<div class="w-1/2 text-center">{flight.departure}</div>
-				<div class="w-1/2 text-center">{flight.arrival}</div>
-			</div>
-		</div>
-	{/each}
+		{/each}
+	</div>
 </div>
 
 <style>
+	.graffiti-text {
+		background: linear-gradient(
+			90deg,
+			rgb(48, 181, 64) 10%,
+			rgb(214, 0, 14) 30%,
+			rgb(133, 2, 221) 70%,
+			rgb(48, 199, 255) 80%
+		);
+		-webkit-background-clip: text;
+		color: transparent;
+	}
 </style>

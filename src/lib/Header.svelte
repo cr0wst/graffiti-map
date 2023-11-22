@@ -2,9 +2,8 @@
 	<div class="flex flex-grow justify-between items-center">
 		<a href="/" class="text-2xl">
 			<span class="font-semibold logo-text">Graffiti</span><span class="font-light text-white"
-				>Map</span
+				>Air</span
 			>
-			<span class="text-xs font-thin text-white">Color the skies!</span>
 		</a>
 	</div>
 </nav>
