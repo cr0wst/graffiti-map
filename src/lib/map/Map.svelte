@@ -5,14 +5,19 @@
 
 	let mapElement;
 	let map;
+	let leaflet;
+	let geoJsonLayer;
 
 	export let stats;
+
+	$: if (stats) {
+		updateMap();
+	}
 	export let boundaries;
 
 	onMount(async () => {
 		if (browser) {
-			const leaflet = await import('leaflet');
-
+			leaflet = await import('leaflet');
 			map = leaflet.map(mapElement, {
 				center: [37.8, -96],
 				zoom: 4,
@@ -29,7 +34,23 @@
 				})
 				.addTo(map);
 
-			leaflet
+			updateMap();
+
+			geoJsonLayer.addTo(map);
+		}
+	});
+
+	onDestroy(async () => {
+		if (map) {
+			map.remove();
+		}
+	});
+	function updateMap() {
+		if (leaflet && map) {
+			if (geoJsonLayer) {
+				map.removeLayer(geoJsonLayer);
+			}
+			geoJsonLayer = leaflet
 				.geoJson(boundaries, {
 					style: style,
 					onEachFeature: (feature, layer) => {
@@ -50,13 +71,7 @@
 				})
 				.addTo(map);
 		}
-	});
-
-	onDestroy(async () => {
-		if (map) {
-			map.remove();
-		}
-	});
+	}
 
 	function style(feature) {
 		const color = stats[feature.properties.id] ? stats[feature.properties.id].color : '#cccccc';
