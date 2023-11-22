@@ -21,6 +21,11 @@
 			thickBorder: 'border-red-500',
 			thinBorder: 'border-red-500',
 			background: 'bg-red-900'
+		},
+		gray: {
+			thickBorder: 'border-zinc-300',
+			thinBorder: 'border-zinc-300',
+			background: 'bg-zinc-500'
 		}
 	};
 </script>
