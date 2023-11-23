@@ -19,7 +19,7 @@ FROM
 	JOIN airports a ON LTRIM(f.arrival, 'K') = a.arpt_id
 	JOIN airports d ON LTRIM(f.departure, 'K') = d.arpt_id
 WHERE
-	departure_color IS NOT NULL
+	departure_color IS NOT NULL AND f.arrival <> f.departure
 ORDER BY
 	f.created_at DESC
 LIMIT 10`
