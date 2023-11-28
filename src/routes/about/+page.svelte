@@ -24,6 +24,11 @@
 		creating a dynamic tapestry that reflects the virtual aviation activity across the country.
 	</p>
 
+	<p class="mb-4">
+		Additionally, these vARTCCs are automatically given 5 additional color units every day to help
+		ensure that the map always has color available.
+	</p>
+
 	<h3 class="text-xl font-bold mb-2">The Color Assignment</h3>
 	<ul class="list-disc pl-8 mb-4">
 		<li>For ZLA, ZOA, ZSE: 5 Green Units</li>
@@ -39,6 +44,19 @@
 	</p>
 
 	<h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+
+	<h3 class="text-xl font-bold mb-2">
+		Why did certain vARTCCs increase in color without a corresponding flight?
+	</h3>
+	<p class="mb-4">
+		Some vARTCCs have a base color that is incremented by 5 every day. This ensures that the map
+		always has color available.
+	</p>
+	<ul class="list-disc pl-8 mb-4">
+		<li>For ZLA, ZOA, ZSE: 5 Green Units</li>
+		<li>For ZME, ZFW, ZHU: 5 Red Units</li>
+		<li>For ZBW, ZNY, ZDC: 5 Blue Units</li>
+	</ul>
 
 	<h3 class="text-xl font-bold mb-2">Why was my flight not tracked?</h3>
 	<p class="mb-4">
