@@ -1,8 +1,9 @@
 import type { ServerLoadEvent } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 
-export async function GET({ params, locals }: ServerLoadEvent) {
+export async function GET({ url, locals }: ServerLoadEvent) {
 	const { db } = locals;
+	const limit = parseInt(url.searchParams.get('limit') ?? '100');
 	const response = await db.query(
 		`
 		SELECT
@@ -21,9 +22,13 @@ FROM
 WHERE
 	departure_color IS NOT NULL AND a.resp_artcc_id <> d.resp_artcc_id
 ORDER BY
-	f.created_at DESC
-LIMIT 10`
+	f.created_at DESC LIMIT $1;
+`,
+		[limit ?? 100]
 	);
 
-	return json(response.rows);
+	// get total flights
+	const totalFlights = await db.query('SELECT COUNT(*) FROM flights_archive');
+
+	return json({ flights: response.rows, count: totalFlights.rows[0].count });
 }

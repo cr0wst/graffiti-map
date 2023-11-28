@@ -6,7 +6,7 @@ export const load: PageLoad = async ({ fetch, depends }) => {
 	return {
 		stats: await fetchStats(fetch),
 		boundaries: await fetchBoundaries(fetch),
-		flights: await fetchFlights(fetch)
+		flights: (await fetchFlights(fetch)).flights
 	};
 };
 
@@ -31,5 +31,5 @@ async function fetchBoundaries(fetch: typeof window.fetch) {
 }
 
 async function fetchFlights(fetch: typeof window.fetch) {
-	return await fetch('/api/flights').then((r) => r.json());
+	return await fetch('/api/flights?limit=4').then((r) => r.json());
 }
