@@ -1,11 +1,9 @@
 import { Config } from '@netlify/functions';
 
-export default async (req: Request) => {
+export default async (req: Request): Promise<Response> => {
 	console.log('Sync');
 
-	return {
-		statusCode: 200
-	};
+	return new Response('OK');
 };
 
 export const config: Config = {
