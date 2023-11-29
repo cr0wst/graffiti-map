@@ -11,6 +11,7 @@ export async function GET({ url, locals }: ServerLoadEvent) {
 	f.callsign as "callsign",
 	f.longitude as "flight_longitude",
 	f.latitude as "flight_latitude",
+	f.heading as "flight_heading",
 	d.long_decimal as "departure_longitude",
 	d.lat_decimal as "departure_latitude",
 	a.long_decimal as "arrival_longitude",

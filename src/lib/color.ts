@@ -49,23 +49,19 @@ export function calculateIconColor(units: { red: number; green: number; blue: nu
 	}
 
 	if (red === green && red > blue) {
-		return ['red', 'green'][Math.floor(Math.random() * 2)];
+		return 'red-green';
 	}
 
 	if (red === blue && red > green) {
-		return ['red', 'blue'][Math.floor(Math.random() * 2)];
+		return 'red-blue';
 	}
 
 	if (green === blue && green > red) {
-		return ['green', 'blue'][Math.floor(Math.random() * 2)];
+		return 'green-blue';
 	}
 
 	if (red === green && red === blue && red > 0) {
-		return ['red', 'green', 'blue'][Math.floor(Math.random() * 3)];
-	}
-
-	if (red === blue && red === green && red > 0) {
-		return ['red', 'green', 'blue'][Math.floor(Math.random() * 3)];
+		return 'red-green-blue';
 	}
 
 	return 'gray';

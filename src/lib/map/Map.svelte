@@ -10,10 +10,9 @@
 	let leaflet;
 	let geoJsonLayer;
 	let flightLayer;
-	let greenPlaneIcon;
-	let bluePlaneIcon;
-	let redPlaneIcon;
-	let grayPlaneIcon;
+	let flightClickedLayer = [];
+
+	let iconMap;
 
 	export let stats;
 	export let flights = [];
@@ -44,29 +43,56 @@
 				})
 				.addTo(map);
 
-			greenPlaneIcon = leaflet.divIcon({
-				html: `${PlaneIcon}`,
-				iconSize: [20, 20],
-				className: 'svg-icon-green'
-			});
-
-			bluePlaneIcon = leaflet.divIcon({
-				html: `${PlaneIcon}`,
-				iconSize: [20, 20],
-				className: 'svg-icon-blue'
-			});
-
-			redPlaneIcon = leaflet.divIcon({
-				html: `${PlaneIcon}`,
-				iconSize: [20, 20],
-				className: 'svg-icon-red'
-			});
-
-			grayPlaneIcon = leaflet.divIcon({
-				html: `${PlaneIcon}`,
-				iconSize: [20, 20],
-				className: 'svg-icon-gray'
-			});
+			iconMap = {
+				green: leaflet.divIcon({
+					html: `${PlaneIcon}`,
+					iconSize: [20, 20],
+					iconAnchor: [10, 10],
+					className: 'svg-icon-green'
+				}),
+				blue: leaflet.divIcon({
+					html: `${PlaneIcon}`,
+					iconSize: [20, 20],
+					iconAnchor: [10, 10],
+					className: 'svg-icon-blue'
+				}),
+				red: leaflet.divIcon({
+					html: `${PlaneIcon}`,
+					iconSize: [20, 20],
+					iconAnchor: [10, 10],
+					className: 'svg-icon-red'
+				}),
+				gray: leaflet.divIcon({
+					html: `${PlaneIcon}`,
+					iconSize: [20, 20],
+					iconAnchor: [10, 10],
+					className: 'svg-icon-gray'
+				}),
+				'red-green': leaflet.divIcon({
+					html: `${PlaneIcon}`,
+					iconSize: [20, 20],
+					iconAnchor: [10, 10],
+					className: 'svg-icon-red-green'
+				}),
+				'red-blue': leaflet.divIcon({
+					html: `${PlaneIcon}`,
+					iconSize: [20, 20],
+					iconAnchor: [10, 10],
+					className: 'svg-icon-red-blue'
+				}),
+				'green-blue': leaflet.divIcon({
+					html: `${PlaneIcon}`,
+					iconSize: [20, 20],
+					iconAnchor: [10, 10],
+					className: 'svg-icon-green-blue'
+				}),
+				'red-green-blue': leaflet.divIcon({
+					html: `${PlaneIcon}`,
+					iconSize: [20, 20],
+					iconAnchor: [10, 10],
+					className: 'svg-icon-red-green-blue'
+				})
+			};
 
 			updateMap();
 
@@ -88,6 +114,10 @@
 
 			if (flightLayer && flightLayer.length > 0) {
 				flightLayer.forEach((fl) => map.removeLayer(fl));
+			}
+
+			if (flightClickedLayer && flightClickedLayer.length > 0) {
+				flightClickedLayer.forEach((fl) => map.removeLayer(fl));
 			}
 
 			geoJsonLayer = leaflet
@@ -112,36 +142,66 @@
 				.addTo(map);
 
 			flightLayer = flights.map((f) => {
-				const color = calculateIconColor({
+				const iconColor = calculateIconColor({
 					red: f.departure_red_units,
 					green: f.departure_green_units,
 					blue: f.departure_blue_units
 				});
 
-				// Calculate angle between current location and destination in degrees
-				const angle = Math.floor(
-					(Math.atan2(
-						f.arrival_latitude - f.flight_latitude,
-						f.arrival_longitude - f.flight_longitude
-					) *
-						180) /
-						Math.PI
-				);
+				const lineColor = calculateColor({
+					red: f.departure_red_units,
+					green: f.departure_green_units,
+					blue: f.departure_blue_units
+				});
 
 				const marker = leaflet
 					.marker([f.flight_latitude, f.flight_longitude], {
-						icon:
-							color === 'gray'
-								? grayPlaneIcon
-								: color === 'red'
-								  ? redPlaneIcon
-								  : color === 'green'
-								    ? greenPlaneIcon
-								    : bluePlaneIcon,
-						rotationAngle: angle
+						icon: iconMap[iconColor],
+						rotationAngle: f.flight_heading,
+						rotationOrigin: 'center',
+						interactive: true
 					})
-					.addTo(map);
-
+					.addTo(map)
+					.on('mouseout', () => {
+						flightClickedLayer.forEach((fl) => map.removeLayer(fl));
+					})
+					.on('mouseover', () => {
+						flightClickedLayer.push(
+							leaflet
+								.circleMarker([f.departure_latitude, f.departure_longitude], {
+									color: lineColor,
+									radius: 2,
+									interactive: false
+								})
+								.addTo(map)
+						);
+						flightClickedLayer.push(
+							leaflet
+								.circleMarker([f.arrival_latitude, f.arrival_longitude], {
+									color: lineColor,
+									radius: 2,
+									interactive: false
+								})
+								.addTo(map)
+						);
+						flightClickedLayer.push(
+							leaflet
+								.polyline(
+									[
+										[f.departure_latitude, f.departure_longitude],
+										[f.flight_latitude, f.flight_longitude],
+										[f.arrival_latitude, f.arrival_longitude]
+									],
+									{
+										color: lineColor,
+										weight: 2,
+										opacity: 1,
+										interactive: false
+									}
+								)
+								.addTo(map)
+						);
+					});
 				return marker;
 			});
 		}
@@ -188,7 +248,19 @@
 		fill: #cccccc;
 	}
 
-	:global(.rotate-test svg) {
-		transform: rotate(45deg);
+	:global(.svg-icon-red-green path) {
+		fill: #ffff00;
+	}
+
+	:global(.svg-icon-red-blue path) {
+		fill: #ff00ff;
+	}
+
+	:global(.svg-icon-green-blue path) {
+		fill: #00ffff;
+	}
+
+	:global(.svg-icon-red-green-blue path) {
+		fill: #494949;
 	}
 </style>
