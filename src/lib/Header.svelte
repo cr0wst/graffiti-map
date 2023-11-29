@@ -11,12 +11,12 @@
 		</a>
 		<div class="flex">
 			<span class="text-white font-thin text-lg"
-				><span class="font-light">{count}</span> flights and counting!</span
+				><span class="font-light">{count}</span> completed flights and counting!</span
 			>
 		</div>
 		<div class="flex">
 			<div class="px-3">
-				<a href="/flights" class="text-white text-lg hover:text-gray-300">Completed Flights</a>
+				<a href="/flights" class="text-white text-lg hover:text-gray-300">Flights</a>
 			</div>
 			<div class="px-3">
 				<a href="/about" class="text-white text-lg hover:text-gray-300">FAQ</a>

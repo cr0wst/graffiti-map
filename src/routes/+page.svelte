@@ -2,13 +2,14 @@
 	import Map from '$lib/map/Map.svelte';
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
-	import FlightStripBay from '$lib/FlightStripBay.svelte';
+	import CompletedFlightStripBay from '$lib/CompletedFlightStripBay.svelte';
 
 	export let data;
 
 	$: stats = data.stats;
 	$: boundaries = data.boundaries;
-	$: flights = data.flights;
+	$: completedFlights = data.completedFlights;
+	$: activeFlights = data.activeFlights;
 
 	onMount(() => {
 		const interval = setInterval(() => {
@@ -20,14 +21,14 @@
 </script>
 
 <div class="flex-1 flex w-full" id="content">
-	<Map {stats} {boundaries} />
+	<Map {stats} {boundaries} flights={activeFlights} />
 </div>
 <div class="w-full flex-col md:flex-row flex items-center justify-center">
 	<div class="md:w-1/6 p-2 flex items-center justify-center">
 		<h1 class="text-md graffiti-text">Tracked Landings</h1>
 	</div>
-	{#if flights && flights.length > 0}
-		<FlightStripBay {flights} />
+	{#if completedFlights && completedFlights.length > 0}
+		<CompletedFlightStripBay {completedFlights} />
 	{/if}
 </div>
 

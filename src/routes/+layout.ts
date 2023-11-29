@@ -1,13 +1,13 @@
-import type { PageLoad } from './$types';
+import type { PageLoad, PageLoadEvent } from './$types';
 
-export const load: PageLoad = async ({ fetch, depends }) => {
+export const load: PageLoad = async ({ fetch, depends }: PageLoadEvent) => {
 	depends('app:loadData');
 
 	return {
-		flightsCount: (await fetchFlightsCount(fetch)).count
+		completedFlightsCount: (await fetchCompletedFlightsCount(fetch)).count
 	};
 };
 
-async function fetchFlightsCount(fetch: typeof window.fetch) {
-	return await fetch('/api/flights?limit=0').then((r) => r.json());
+async function fetchCompletedFlightsCount(fetch: typeof window.fetch) {
+	return await fetch('/api/completedFlights?limit=0').then((r) => r.json());
 }

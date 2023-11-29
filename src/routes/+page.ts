@@ -1,12 +1,13 @@
-import type { PageLoad } from './$types';
+import type { PageLoad, PageLoadEvent } from './$types';
 
-export const load: PageLoad = async ({ fetch, depends }) => {
+export const load: PageLoad = async ({ fetch, depends }: PageLoadEvent) => {
 	depends('app:loadData');
 
 	return {
 		stats: await fetchStats(fetch),
 		boundaries: await fetchBoundaries(fetch),
-		flights: (await fetchFlights(fetch)).flights
+		completedFlights: (await fetchCompletedFlights(fetch)).flights,
+		activeFlights: (await fetchActiveFlights(fetch)).flights
 	};
 };
 
@@ -30,6 +31,10 @@ async function fetchBoundaries(fetch: typeof window.fetch) {
 	return boundaries;
 }
 
-async function fetchFlights(fetch: typeof window.fetch) {
-	return await fetch('/api/flights?limit=4').then((r) => r.json());
+async function fetchCompletedFlights(fetch: typeof window.fetch) {
+	return await fetch('/api/completedFlights?limit=4').then((r) => r.json());
+}
+
+async function fetchActiveFlights(fetch: typeof window.fetch) {
+	return await fetch('/api/activeFlights').then((r) => r.json());
 }

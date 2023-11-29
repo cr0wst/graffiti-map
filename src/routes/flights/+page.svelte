@@ -1,20 +1,20 @@
 <script lang="ts">
-	import FlightStrip from '$lib/FlightStrip.svelte';
+	import CompletedFlightStrip from '$lib/CompletedFlightStrip.svelte';
 
 	export let data;
 
-	$: flights = data.flights;
+	$: completedFlights = data.completedFlights;
 </script>
 
 <div class="container mx-auto px-8 py-3 w-full text-white">
-	<h1 class="text-4xl font-bold mb-4">Recently Tracked Flights</h1>
+	<h1 class="text-4xl font-bold mb-4">Recently Completed Flights</h1>
 
-	{#if flights.length === 0}
+	{#if completedFlights.length === 0}
 		<p class="text-xl">No flights have been tracked yet.</p>
 	{:else}
 		<div class="flex flex-wrap w-full items-center justify-center">
-			{#each flights as flight}
-				<FlightStrip {flight} />
+			{#each completedFlights as flight}
+				<CompletedFlightStrip {flight} />
 			{/each}
 		</div>
 	{/if}

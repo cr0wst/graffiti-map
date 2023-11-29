@@ -4,10 +4,10 @@ export const load: PageLoad = async ({ fetch, depends }) => {
 	depends('app:loadData');
 
 	return {
-		flights: (await fetchFlights(fetch)).flights
+		completedFlights: (await fetchCompletedFlights(fetch)).flights
 	};
 };
 
-async function fetchFlights(fetch: typeof window.fetch) {
-	return await fetch('/api/flights?limit=50').then((r) => r.json());
+async function fetchCompletedFlights(fetch: typeof window.fetch) {
+	return await fetch('/api/completedFlights?limit=50').then((r) => r.json());
 }
