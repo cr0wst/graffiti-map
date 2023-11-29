@@ -21,6 +21,8 @@ SET
 	const result = await db.query(query);
 
 	await db.end();
+
+	return new Response('OK');
 };
 
 export const config: Config = {
