@@ -14,9 +14,8 @@ export async function GET({ params, locals }: ServerLoadEvent) {
 }
 
 function calculateColor(units: any) {
-	let baseColor = '#CCCCCC';
 	if (units.red === units.green && units.green === units.blue) {
-		return baseColor;
+		return units.red > 0 ? '#494949' : '#CCCCCC';
 	}
 
 	// calculate the winning hex color using the units
