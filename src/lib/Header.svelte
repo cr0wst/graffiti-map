@@ -10,7 +10,7 @@
 			>
 		</a>
 		<div class="flex">
-			<span class="text-white font-thin text-lg"
+			<span class="text-white font-thin text-xs md:text-lg"
 				><span class="font-light">{count}</span> completed flights and counting!</span
 			>
 		</div>
