@@ -6,8 +6,9 @@ export const load: PageLoad = async ({ fetch, depends }: PageLoadEvent) => {
 	return {
 		stats: await fetchStats(fetch),
 		boundaries: await fetchBoundaries(fetch),
-		completedFlights: (await fetchCompletedFlights(fetch)).flights,
-		activeFlights: (await fetchActiveFlights(fetch)).flights
+		completedFlights: await fetchCompletedFlights(fetch),
+		activeFlights: await fetchActiveFlights(fetch),
+		artccFlights: await fetchArtccFlights(fetch)
 	};
 };
 
@@ -37,4 +38,8 @@ async function fetchCompletedFlights(fetch: typeof window.fetch) {
 
 async function fetchActiveFlights(fetch: typeof window.fetch) {
 	return await fetch('/api/activeFlights').then((r) => r.json());
+}
+
+async function fetchArtccFlights(fetch: typeof window.fetch) {
+	return await fetch('/api/artccFlights').then((r) => r.json());
 }

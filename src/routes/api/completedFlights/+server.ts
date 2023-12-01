@@ -3,6 +3,9 @@ import { json } from '@sveltejs/kit';
 
 export async function GET({ url, locals }: ServerLoadEvent) {
 	const { db } = locals;
+
+	const totalFlights = await db.query('SELECT COUNT(*) FROM flights_archive');
+
 	const limit = parseInt(url.searchParams.get('limit') ?? '100');
 	const response = await db.query(
 		`
@@ -26,9 +29,6 @@ ORDER BY
 `,
 		[limit ?? 100]
 	);
-
-	// get total flights
-	const totalFlights = await db.query('SELECT COUNT(*) FROM flights_archive');
 
 	return json({ flights: response.rows, count: totalFlights.rows[0].count });
 }

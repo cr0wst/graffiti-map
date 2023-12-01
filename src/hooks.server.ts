@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 
-import { connect } from '$lib/db';
+import { connect } from '$lib/server/db';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const db = await connect();

@@ -1,7 +1,3 @@
-<script lang="ts">
-	export let count = 0;
-</script>
-
 <nav class="container mx-auto px-6 py-3 w-full">
 	<div class="flex flex-grow justify-between items-center">
 		<a href="/" class="text-2xl">
@@ -9,11 +5,6 @@
 				>Air</span
 			>
 		</a>
-		<div class="flex">
-			<span class="text-white font-thin text-xs md:text-lg"
-				><span class="font-light">{count}</span> completed flights and counting!</span
-			>
-		</div>
 		<div class="flex">
 			<div class="px-3">
 				<a href="/flights" class="text-white text-lg hover:text-gray-300">Flights</a>

@@ -1,18 +1,15 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import PlaneIcon from '$lib/plane.svg?raw';
-
+	import PlaneIcon from '$lib/map/plane.svg?raw';
+	import { selectedArtcc } from '$lib/stores';
 	import { browser } from '$app/environment';
-	import { calculateColor, calculateIconColor } from '$lib/color';
+	import { calculateColor } from '$lib/color';
 
 	let mapElement;
 	let map;
 	let leaflet;
 	let geoJsonLayer;
 	let flightLayer;
-	let flightClickedLayer = [];
-
-	let iconMap;
 
 	export let stats;
 	export let flights = [];
@@ -43,60 +40,7 @@
 				})
 				.addTo(map);
 
-			iconMap = {
-				green: leaflet.divIcon({
-					html: `${PlaneIcon}`,
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: 'svg-icon-green'
-				}),
-				blue: leaflet.divIcon({
-					html: `${PlaneIcon}`,
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: 'svg-icon-blue'
-				}),
-				red: leaflet.divIcon({
-					html: `${PlaneIcon}`,
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: 'svg-icon-red'
-				}),
-				gray: leaflet.divIcon({
-					html: `${PlaneIcon}`,
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: 'svg-icon-gray'
-				}),
-				'red-green': leaflet.divIcon({
-					html: `${PlaneIcon}`,
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: 'svg-icon-red-green'
-				}),
-				'red-blue': leaflet.divIcon({
-					html: `${PlaneIcon}`,
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: 'svg-icon-red-blue'
-				}),
-				'green-blue': leaflet.divIcon({
-					html: `${PlaneIcon}`,
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: 'svg-icon-green-blue'
-				}),
-				'red-green-blue': leaflet.divIcon({
-					html: `${PlaneIcon}`,
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: 'svg-icon-red-green-blue'
-				})
-			};
-
 			updateMap();
-
-			geoJsonLayer.addTo(map);
 		}
 	});
 
@@ -108,114 +52,70 @@
 
 	function updateMap() {
 		if (leaflet && map) {
-			if (geoJsonLayer) {
-				map.removeLayer(geoJsonLayer);
-			}
-
-			if (flightLayer && flightLayer.length > 0) {
-				flightLayer.forEach((fl) => map.removeLayer(fl));
-			}
-
-			if (flightClickedLayer && flightClickedLayer.length > 0) {
-				flightClickedLayer.forEach((fl) => map.removeLayer(fl));
-			}
-
-			geoJsonLayer = leaflet
-				.geoJson(boundaries, {
-					style: style,
-					onEachFeature: (feature, layer) => {
-						const stat = stats[feature.properties.id];
-						if (stat) {
-							layer.bindTooltip(
-								`
-                                <h3>${feature.properties.id.substring(1, 4)}</h3>
-                                <p>🟥 ${stat.red} 🟩 ${stat.green} 🟦 ${stat.blue}</p>
-                            `,
-								{
-									direction: 'center',
-									bubblingMouseEvents: false
-								}
-							);
-						}
-					}
-				})
-				.addTo(map);
-
-			flightLayer = flights.map((f) => {
-				const iconColor = calculateIconColor({
-					red: f.departure_red_units,
-					green: f.departure_green_units,
-					blue: f.departure_blue_units
-				});
-
-				const lineColor = calculateColor({
-					red: f.departure_red_units,
-					green: f.departure_green_units,
-					blue: f.departure_blue_units
-				});
-
-				const marker = leaflet
-					.marker([f.flight_latitude, f.flight_longitude], {
-						icon: iconMap[iconColor],
-						rotationAngle: f.flight_heading,
-						rotationOrigin: 'center',
-						interactive: true
-					})
-					.addTo(map)
-					.on('mouseout', () => {
-						flightClickedLayer.forEach((fl) => map.removeLayer(fl));
-					})
-					.on('mouseover', () => {
-						flightClickedLayer.push(
-							leaflet
-								.circleMarker([f.departure_latitude, f.departure_longitude], {
-									color: lineColor,
-									radius: 2,
-									interactive: false
-								})
-								.addTo(map)
-						);
-						flightClickedLayer.push(
-							leaflet
-								.circleMarker([f.arrival_latitude, f.arrival_longitude], {
-									color: lineColor,
-									radius: 2,
-									interactive: false
-								})
-								.addTo(map)
-						);
-						flightClickedLayer.push(
-							leaflet
-								.polyline(
-									[
-										[f.departure_latitude, f.departure_longitude],
-										[f.flight_latitude, f.flight_longitude],
-										[f.arrival_latitude, f.arrival_longitude]
-									],
-									{
-										color: lineColor,
-										weight: 2,
-										opacity: 1,
-										interactive: false
-									}
-								)
-								.addTo(map)
-						);
-					});
-				return marker;
-			});
+			updateGeoJsonLayer();
+			updateFlightLayer();
 		}
 	}
 
-	function style(feature) {
-		const color = stats[feature.properties.id] ? stats[feature.properties.id].color : '#cccccc';
-		return {
-			fillColor: color,
-			weight: 2,
-			opacity: 1,
-			color: 'white',
-			fillOpacity: 0.5
-		};
+	function updateFlightLayer() {
+		if (flightLayer && flightLayer.length > 0) {
+			flightLayer.forEach((fl) => map.removeLayer(fl));
+		}
+
+		flightLayer = flights.map((f) => {
+			const color = calculateColor({
+				red: f.departure_red_units,
+				green: f.departure_green_units,
+				blue: f.departure_blue_units
+			});
+
+			return leaflet
+				.marker([f.flight_latitude, f.flight_longitude], {
+					icon: leaflet.divIcon({
+						html: `<div class="plane-icon" style="--fill-color: ${color}">${PlaneIcon}</div>`,
+						iconSize: [20, 20],
+						iconAnchor: [10, 10],
+						className: ''
+					}),
+					rotationAngle: f.flight_heading,
+					rotationOrigin: 'center',
+					interactive: true
+				})
+				.addTo(map);
+		});
+	}
+
+	function updateGeoJsonLayer() {
+		if (geoJsonLayer) {
+			map.removeLayer(geoJsonLayer);
+		}
+
+		geoJsonLayer = leaflet
+			.geoJson(boundaries, {
+				style: (feature) => {
+					const color = stats[feature.properties.id]
+						? stats[feature.properties.id].color
+						: '#cccccc';
+					return {
+						fillColor: color,
+						weight: feature.properties.id == $selectedArtcc?.id ? 3 : 1,
+						opacity: 1,
+						color: 'white',
+						fillOpacity: feature.properties.id == $selectedArtcc?.id ? 0.8 : 0.4
+					};
+				}
+			})
+			.addTo(map)
+			.on('click', (e) => {
+				const artcc = {
+					id: e.layer.feature.properties.id,
+					red: stats[e.layer.feature.properties.id].red,
+					green: stats[e.layer.feature.properties.id].green,
+					blue: stats[e.layer.feature.properties.id].blue
+				};
+				$selectedArtcc = $selectedArtcc !== null && $selectedArtcc.id === artcc.id ? null : artcc;
+				updateMap();
+			});
 	}
 </script>
 
@@ -232,35 +132,7 @@
 		outline: none;
 	}
 
-	:global(.svg-icon-green path) {
-		fill: #00ff00;
-	}
-
-	:global(.svg-icon-blue path) {
-		fill: #0000ff;
-	}
-
-	:global(.svg-icon-red path) {
-		fill: #ff0000;
-	}
-
-	:global(.svg-icon-gray path) {
-		fill: #cccccc;
-	}
-
-	:global(.svg-icon-red-green path) {
-		fill: #ffff00;
-	}
-
-	:global(.svg-icon-red-blue path) {
-		fill: #ff00ff;
-	}
-
-	:global(.svg-icon-green-blue path) {
-		fill: #00ffff;
-	}
-
-	:global(.svg-icon-red-green-blue path) {
-		fill: #494949;
+	:global(.plane-icon > svg > path) {
+		fill: var(--fill-color);
 	}
 </style>
