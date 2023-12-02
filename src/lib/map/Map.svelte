@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 	import PlaneIcon from '$lib/map/plane.svg?raw';
-	import { selectedArtcc } from '$lib/stores';
+	import { selectedArtcc, selectedPlane } from '$lib/stores';
 	import { browser } from '$app/environment';
 	import { calculateColor } from '$lib/color';
 
@@ -41,6 +41,12 @@
 				.addTo(map);
 
 			updateMap();
+
+			map.on('click', () => {
+				$selectedArtcc = null;
+				$selectedPlane = null;
+				updateMap();
+			});
 		}
 	});
 
@@ -69,20 +75,77 @@
 				blue: f.departure_blue_units
 			});
 
+			// add some transparency if the plane is not selected
 			return leaflet
 				.marker([f.flight_latitude, f.flight_longitude], {
 					icon: leaflet.divIcon({
 						html: `<div class="plane-icon" style="--fill-color: ${color}">${PlaneIcon}</div>`,
-						iconSize: [20, 20],
-						iconAnchor: [10, 10],
+						iconSize: [10, 10],
+						iconAnchor: [5, 5],
 						className: ''
 					}),
 					rotationAngle: f.flight_heading,
 					rotationOrigin: 'center',
-					interactive: true
+					interactive: true,
+					opacity: $selectedPlane == null || $selectedPlane.callsign === f.callsign ? 1 : 0.5
 				})
-				.addTo(map);
+				.addTo(map)
+				.on('click', (e) => {
+					leaflet.DomEvent.stopPropagation(e);
+					selectedArtcc.set(null);
+					$selectedPlane =
+						$selectedPlane !== null && $selectedPlane.callsign === f.callsign ? null : f;
+
+					updateMap();
+				});
 		});
+
+		// add lines between flight, departure, and arrival for $selectedPlane
+		if ($selectedPlane) {
+			const departureColor = calculateColor({
+				red: $selectedPlane.departure_red_units,
+				green: $selectedPlane.departure_green_units,
+				blue: $selectedPlane.departure_blue_units
+			});
+
+			flightLayer.push(
+				leaflet
+					.circle([$selectedPlane.departure_latitude, $selectedPlane.departure_longitude], {
+						radius: 100,
+						color: departureColor,
+						opacity: 0.5,
+						weight: 1,
+						interactive: false
+					})
+					.addTo(map),
+
+				leaflet
+					.circle([$selectedPlane.arrival_latitude, $selectedPlane.arrival_longitude], {
+						radius: 100,
+						color: departureColor,
+						opacity: 0.5,
+						weight: 1,
+						interactive: false
+					})
+					.addTo(map),
+
+				leaflet
+					.polyline(
+						[
+							[$selectedPlane.departure_latitude, $selectedPlane.departure_longitude],
+							[$selectedPlane.flight_latitude, $selectedPlane.flight_longitude],
+							[$selectedPlane.arrival_latitude, $selectedPlane.arrival_longitude]
+						],
+						{
+							color: departureColor,
+							opacity: 1,
+							weight: 2,
+							interactive: false
+						}
+					)
+					.addTo(map)
+			);
+		}
 	}
 
 	function updateGeoJsonLayer() {
@@ -96,17 +159,41 @@
 					const color = stats[feature.properties.id]
 						? stats[feature.properties.id].color
 						: '#cccccc';
+
+					const weight =
+						$selectedPlane?.departure_artcc == feature.properties.id ||
+						$selectedPlane?.arrival_artcc == feature.properties.id ||
+						feature.properties.id == $selectedArtcc?.id
+							? 3
+							: 1;
+
+					// If there's a plane selected we set the opacity to the departure and arrival artcc to .8 and all others to .2
+					// if there's no plane selected but a territory is selected, we also set it to .8 and all others to .2
+					// otherwise .6
+					const fillOpacity = $selectedPlane
+						? $selectedPlane.departure_artcc == feature.properties.id ||
+						  $selectedPlane.arrival_artcc == feature.properties.id
+							? 0.6
+							: 0.1
+						: $selectedArtcc
+						  ? $selectedArtcc.id == feature.properties.id
+								? 0.6
+								: 0.1
+						  : 0.3;
 					return {
 						fillColor: color,
-						weight: feature.properties.id == $selectedArtcc?.id ? 3 : 1,
+						// set the weight to 3 if the plane is selected and this is a departure or arrival artcc
+						weight: weight,
 						opacity: 1,
 						color: 'white',
-						fillOpacity: feature.properties.id == $selectedArtcc?.id ? 0.8 : 0.4
+						// set fill opacity to .2 if there's a plane selected
+						fillOpacity: fillOpacity
 					};
 				}
 			})
 			.addTo(map)
 			.on('click', (e) => {
+				leaflet.DomEvent.stopPropagation(e);
 				const artcc = {
 					id: e.layer.feature.properties.id,
 					red: stats[e.layer.feature.properties.id].red,
@@ -114,6 +201,7 @@
 					blue: stats[e.layer.feature.properties.id].blue
 				};
 				$selectedArtcc = $selectedArtcc !== null && $selectedArtcc.id === artcc.id ? null : artcc;
+				selectedPlane.set(null);
 				updateMap();
 			});
 	}
