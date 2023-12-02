@@ -115,7 +115,7 @@
 				trackedFlightLayer = [
 					leaflet
 						.circle([f.departure_latitude, f.departure_longitude], {
-							radius: 100,
+							radius: 200,
 							color: departureColor,
 							opacity: 0.5,
 							weight: 1,
@@ -125,14 +125,29 @@
 
 					leaflet
 						.circle([f.arrival_latitude, f.arrival_longitude], {
-							radius: 100,
+							radius: 200,
 							color: departureColor,
 							opacity: 0.5,
 							weight: 1,
 							interactive: false
 						})
 						.addTo(map),
-
+					leaflet
+						.polyline(
+							[
+								[f.departure_latitude, f.departure_longitude],
+								[f.flight_latitude, f.flight_longitude],
+								[f.arrival_latitude, f.arrival_longitude]
+							],
+							{
+								color: '#ffffff',
+								opacity: 1,
+								weight: 2,
+								brightness: 2,
+								interactive: false
+							}
+						)
+						.addTo(map),
 					leaflet
 						.polyline(
 							[
@@ -142,8 +157,9 @@
 							],
 							{
 								color: departureColor,
-								opacity: 1,
+								opacity: 0.5,
 								weight: 2,
+								brightness: 2,
 								interactive: false
 							}
 						)
@@ -200,15 +216,18 @@
 			})
 			.addTo(map)
 			.on('click', (e) => {
-				leaflet.DomEvent.stopPropagation(e);
-				const artcc = {
-					id: e.layer.feature.properties.id,
-					red: stats[e.layer.feature.properties.id].red,
-					green: stats[e.layer.feature.properties.id].green,
-					blue: stats[e.layer.feature.properties.id].blue
-				};
-				$selectedArtcc = $selectedArtcc !== null && $selectedArtcc.id === artcc.id ? null : artcc;
-				selectedPlane.set(null);
+				if ($selectedPlane == null) {
+					leaflet.DomEvent.stopPropagation(e);
+					const artcc = {
+						id: e.layer.feature.properties.id,
+						red: stats[e.layer.feature.properties.id].red,
+						green: stats[e.layer.feature.properties.id].green,
+						blue: stats[e.layer.feature.properties.id].blue
+					};
+					$selectedArtcc = $selectedArtcc !== null && $selectedArtcc.id === artcc.id ? null : artcc;
+				} else {
+					selectedPlane.set(null);
+				}
 				updateMap();
 			});
 	}
@@ -229,5 +248,6 @@
 
 	:global(.plane-icon > svg > path) {
 		fill: var(--fill-color);
+		filter: brightness(2);
 	}
 </style>
