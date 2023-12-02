@@ -138,7 +138,9 @@
 	<CompletedFlightStripBay {completedFlights} />
 </div>
 
-<div class="w-full flex flex-col items-center justify-center p-2 text-xs font-thin text-zinc-400">
+<div
+	class="w-full bg-zinc-900 flex flex-col items-center justify-center p-2 text-xs font-thin text-zinc-400"
+>
 	<div>
 		GraffitiAir &copy; {new Date().getFullYear()}
 		<a href="https://github.com/cr0wst" class="text-white hover:text-zinc-400"
