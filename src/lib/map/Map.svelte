@@ -10,6 +10,7 @@
 	let leaflet;
 	let geoJsonLayer;
 	let flightLayer;
+	let trackedFlightLayer;
 
 	export let stats;
 	export let flights = [];
@@ -68,6 +69,10 @@
 			flightLayer.forEach((fl) => map.removeLayer(fl));
 		}
 
+		if (trackedFlightLayer && trackedFlightLayer.length > 0) {
+			trackedFlightLayer.forEach((fl) => map.removeLayer(fl));
+		}
+
 		flightLayer = flights.map((f) => {
 			const color = calculateColor({
 				red: f.departure_red_units,
@@ -76,7 +81,7 @@
 			});
 
 			// add some transparency if the plane is not selected
-			return leaflet
+			const marker = leaflet
 				.marker([f.flight_latitude, f.flight_longitude], {
 					icon: leaflet.divIcon({
 						html: `<div class="plane-icon" style="--fill-color: ${color}">${PlaneIcon}</div>`,
@@ -98,54 +103,56 @@
 
 					updateMap();
 				});
-		});
 
-		// add lines between flight, departure, and arrival for $selectedPlane
-		if ($selectedPlane) {
-			const departureColor = calculateColor({
-				red: $selectedPlane.departure_red_units,
-				green: $selectedPlane.departure_green_units,
-				blue: $selectedPlane.departure_blue_units
-			});
+			// add lines between flight, departure, and arrival for $selectedPlane
+			if ($selectedPlane && $selectedPlane.callsign === f.callsign) {
+				const departureColor = calculateColor({
+					red: f.departure_red_units,
+					green: f.departure_green_units,
+					blue: f.departure_blue_units
+				});
 
-			flightLayer.push(
-				leaflet
-					.circle([$selectedPlane.departure_latitude, $selectedPlane.departure_longitude], {
-						radius: 100,
-						color: departureColor,
-						opacity: 0.5,
-						weight: 1,
-						interactive: false
-					})
-					.addTo(map),
-
-				leaflet
-					.circle([$selectedPlane.arrival_latitude, $selectedPlane.arrival_longitude], {
-						radius: 100,
-						color: departureColor,
-						opacity: 0.5,
-						weight: 1,
-						interactive: false
-					})
-					.addTo(map),
-
-				leaflet
-					.polyline(
-						[
-							[$selectedPlane.departure_latitude, $selectedPlane.departure_longitude],
-							[$selectedPlane.flight_latitude, $selectedPlane.flight_longitude],
-							[$selectedPlane.arrival_latitude, $selectedPlane.arrival_longitude]
-						],
-						{
+				trackedFlightLayer = [
+					leaflet
+						.circle([f.departure_latitude, f.departure_longitude], {
+							radius: 100,
 							color: departureColor,
-							opacity: 1,
-							weight: 2,
+							opacity: 0.5,
+							weight: 1,
 							interactive: false
-						}
-					)
-					.addTo(map)
-			);
-		}
+						})
+						.addTo(map),
+
+					leaflet
+						.circle([f.arrival_latitude, f.arrival_longitude], {
+							radius: 100,
+							color: departureColor,
+							opacity: 0.5,
+							weight: 1,
+							interactive: false
+						})
+						.addTo(map),
+
+					leaflet
+						.polyline(
+							[
+								[f.departure_latitude, f.departure_longitude],
+								[f.flight_latitude, f.flight_longitude],
+								[f.arrival_latitude, f.arrival_longitude]
+							],
+							{
+								color: departureColor,
+								opacity: 1,
+								weight: 2,
+								interactive: false
+							}
+						)
+						.addTo(map)
+				];
+			}
+
+			return marker;
+		});
 	}
 
 	function updateGeoJsonLayer() {
