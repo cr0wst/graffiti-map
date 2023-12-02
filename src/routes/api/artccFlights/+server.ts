@@ -10,33 +10,81 @@ export async function GET({ url, locals }: ServerLoadEvent) {
 	const response = await db.query(
 		`
 	SELECT
-	d.artcc,
-	d.count AS departures,
-	a.count AS arrivals
+    artcc,
+    SUM(completed_departures) AS completed_departures,
+    SUM(completed_arrivals) AS completed_arrivals,
+    SUM(departures) AS expected_departures,
+    SUM(arrivals) AS expected_arrivals
 FROM (
-	SELECT
-		d.resp_artcc_id AS artcc,
-		count(*)
-	FROM
-		flights_archive f
-		JOIN airports d ON d.arpt_id = ltrim(f.departure, 'K')
-	GROUP BY
-		1) d
-	JOIN (
-		SELECT
-			a.resp_artcc_id AS artcc,
-			count(*)
-		FROM
-			flights_archive f
-			JOIN airports a ON a.arpt_id = ltrim(f.arrival, 'K')
-		GROUP BY
-			1) a ON d.artcc = a.artcc;
+    SELECT
+        d.resp_artcc_id AS artcc,
+        COUNT(*) AS completed_departures,
+        0 AS completed_arrivals,
+        0 AS departures,
+        0 AS arrivals
+    FROM
+        flights_archive f
+        JOIN airports d ON d.arpt_id = ltrim(f.departure, 'K')
+    GROUP BY
+        1
+
+    UNION ALL
+
+    SELECT
+        a.resp_artcc_id AS artcc,
+        0 AS completed_departures,
+        COUNT(*) AS completed_arrivals,
+        0 AS departures,
+        0 AS arrivals
+    FROM
+        flights_archive f
+        JOIN airports a ON a.arpt_id = ltrim(f.arrival, 'K')
+    GROUP BY
+        1
+
+    UNION ALL
+
+    SELECT
+        d.resp_artcc_id AS artcc,
+        0 AS completed_departures,
+        0 AS completed_arrivals,
+        COUNT(*) AS departures,
+        0 AS arrivals
+    FROM
+        flight_status f
+        JOIN airports d ON d.arpt_id = ltrim(f.departure, 'K')
+    GROUP BY
+        1
+
+    UNION ALL
+
+    SELECT
+        a.resp_artcc_id AS artcc,
+        0 AS completed_departures,
+        0 AS completed_arrivals,
+        0 AS departures,
+        COUNT(*) AS arrivals
+    FROM
+        flight_status f
+        JOIN airports a ON a.arpt_id = ltrim(f.arrival, 'K')
+    GROUP BY
+        1
+) AS combined_data
+GROUP BY
+    artcc;
+
 	`
 	);
 
 	// convert array of objects to single object
 	const artccFlights = response.rows.reduce((acc, cur) => {
-		acc[cur.artcc] = { departures: cur.departures, arrivals: cur.arrivals };
+		acc[cur.artcc] = {
+			completed: { departures: cur.completed_departures, arrivals: cur.completed_arrivals },
+			expected: {
+				departures: cur.expected_departures,
+				arrivals: cur.expected_arrivals
+			}
+		};
 		return acc;
 	}, {});
 	return json(artccFlights);
