@@ -137,3 +137,14 @@
 <div class="w-full flex-col md:flex-row flex items-center justify-center">
 	<CompletedFlightStripBay {completedFlights} />
 </div>
+
+<div class="w-full flex flex-col items-center justify-center p-2 text-xs font-thin text-zinc-400">
+	<div>
+		GraffitiAir &copy; {new Date().getFullYear()}
+		<a href="https://smcrow.com" class="text-white hover:text-zinc-400">Steve Crow</a>
+	</div>
+	<div>
+		<!-- add github icon with link to cr0wst -->
+		<a href="https://github.com/cr0wst"> </a>
+	</div>
+</div>
