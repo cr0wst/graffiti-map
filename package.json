@@ -38,6 +38,7 @@
 	"dependencies": {
 		"@netlify/functions": "^2.4.0",
 		"axios": "^1.6.2",
+		"knex": "^3.0.1",
 		"winston": "^3.11.0"
 	}
 }

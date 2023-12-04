@@ -1,5 +1,5 @@
 import { Config } from '@netlify/functions';
-import { connect } from '../lib/db';
+import { db } from './db';
 import log from './log';
 import { fetchData } from './vatsim';
 
@@ -22,7 +22,6 @@ async function run() {
 	log.info('Fetching Pilot Data');
 	const data = await fetchData();
 
-	const db = await connect();
 	await db('flights').del();
 	await db('flights').insert(
 		data.pilots
@@ -87,8 +86,6 @@ async function run() {
 		units.forEach(async (unit) => {
 			await db('units').update(unit).where('artcc', unit.artcc);
 		});
-
-		await db.end();
 
 		return new Response('OK');
 	}
