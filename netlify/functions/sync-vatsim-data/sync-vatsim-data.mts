@@ -85,9 +85,11 @@ async function run() {
 
 		// Commit the changes to the database
 		log.info('Committing changes to DB');
-		units.forEach(async (unit) => {
-			await db('units').update(unit).where('artcc', unit.artcc);
-		});
+		await Promise.all(
+			units.map(async (unit) => {
+				return db('units').update(unit).where('artcc', unit.artcc);
+			})
+		);
 	}
 
 	await db.destroy();
