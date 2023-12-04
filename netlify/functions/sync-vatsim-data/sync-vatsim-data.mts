@@ -1,7 +1,7 @@
 import { Config } from '@netlify/functions';
-import { db } from './db';
 import log from './log';
 import { fetchData } from './vatsim';
+import knex from 'knex';
 
 /**
  * This function runs every minute to sync the VATSIM data from the Data API to the database.
@@ -16,6 +16,21 @@ export default async (req: Request) => {
 	return new Response('OK');
 };
 
+export type Controller = {
+	batch: string;
+	cid: number;
+	name: string;
+	callsign: string;
+	frequency: string;
+	facility: number;
+	rating: number;
+	server: string;
+	visual_range: number;
+	text_atis: string[];
+	last_updated: string;
+	logon_time: string;
+};
+
 export const config: Config = {
 	schedule: '* * * * *'
 };
@@ -23,6 +38,12 @@ export const config: Config = {
 async function run() {
 	log.info('Fetching Pilot Data');
 	const data = await fetchData();
+
+	const db = knex({
+		client: 'pg',
+		connection: process.env.DB_CONNECTION_STRING,
+		searchPath: ['knex', 'public']
+	});
 
 	await db('flights').del();
 	await db('flights').insert(
