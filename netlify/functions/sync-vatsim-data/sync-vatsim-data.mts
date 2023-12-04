@@ -89,6 +89,8 @@ async function run() {
 			await db('units').update(unit).where('artcc', unit.artcc);
 		});
 	}
+
+	await db.destroy();
 }
 
 function calculateColor(units: any) {
