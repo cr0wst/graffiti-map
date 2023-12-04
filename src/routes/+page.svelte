@@ -17,9 +17,12 @@
 	$: artccFlights = data.artccFlights;
 
 	onMount(() => {
-		const interval = setInterval(() => {
-			invalidate('app:loadData');
-		}, 5000);
+		const interval = setInterval(
+			() => {
+				invalidate('app:loadData');
+			},
+			1000 * 60 * 60
+		);
 
 		return () => clearInterval(interval);
 	});
