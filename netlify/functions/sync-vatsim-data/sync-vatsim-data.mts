@@ -12,6 +12,8 @@ import { fetchData } from './vatsim';
  */
 export default async (req: Request) => {
 	await run();
+
+	return new Response('OK');
 };
 
 export const config: Config = {
@@ -86,8 +88,6 @@ async function run() {
 		units.forEach(async (unit) => {
 			await db('units').update(unit).where('artcc', unit.artcc);
 		});
-
-		return new Response('OK');
 	}
 }
 
