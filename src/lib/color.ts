@@ -1,6 +1,6 @@
 export function calculateColor(units: { red: number; green: number; blue: number }) {
 	if (units.red === units.green && units.green === units.blue) {
-		return units.red > 0 ? '#494949' : '#CCCCCC';
+		return '#CCCCCC';
 	}
 
 	// Normalize the units by subtracting the smallest unit from all units
