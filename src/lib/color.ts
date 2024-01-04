@@ -3,11 +3,17 @@ export function calculateColor(units: { red: number; green: number; blue: number
 		return units.red > 0 ? '#494949' : '#CCCCCC';
 	}
 
+	// Normalize the units by subtracting the smallest unit from all units
+	const smallestUnit = Math.min(units.red, units.green, units.blue);
+	const red = units.red - smallestUnit;
+	const green = units.green - smallestUnit;
+	const blue = units.blue - smallestUnit;
+
 	// calculate the winning hex color using the units
-	let totalUnits = units.red + units.green + units.blue;
-	let redPercentage = units.red / totalUnits;
-	let greenPercentage = units.green / totalUnits;
-	let bluePercentage = units.blue / totalUnits;
+	let totalUnits = red + green + blue;
+	let redPercentage = red / totalUnits;
+	let greenPercentage = green / totalUnits;
+	let bluePercentage = blue / totalUnits;
 
 	return rgbToHex(
 		Math.round(redPercentage * 255),
