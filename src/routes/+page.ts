@@ -26,7 +26,9 @@ async function fetchBoundaries(fetch: typeof window.fetch) {
 			f.properties.oceanic === '0' &&
 			// Only Continental US
 			f.properties.id.startsWith('K') &&
-			!f.properties.id.includes('-')
+			!f.properties.id.includes('-') &&
+			// Remove ZMO since it's the oceanic ZMA and somehow is not defined as oceanic
+			f.properties.id !== 'KZMO'
 	);
 
 	return boundaries;
